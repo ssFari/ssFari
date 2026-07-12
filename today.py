@@ -11,12 +11,13 @@ from dateutil.relativedelta import relativedelta
 GRAPHQL_URL = "https://api.github.com/graphql"
 
 STATS_QUERY = """
-query ($login: String!) {
+query ($login: String!, $cursor: String) {
   user(login: $login) {
     createdAt
     followers { totalCount }
-    repositories(ownerAffiliations: OWNER, first: 100, orderBy: {field: STARGAZERS, direction: DESC}) {
+    repositories(ownerAffiliations: OWNER, first: 100, after: $cursor, orderBy: {field: STARGAZERS, direction: DESC}) {
       totalCount
+      pageInfo { hasNextPage endCursor }
       nodes { stargazerCount }
     }
     contributionsCollection { totalCommitContributions }
@@ -75,8 +76,16 @@ def extract_stats(data: dict) -> dict:
 
 
 def collect_stats(login: str, token: str) -> dict:
-    data = run_query(STATS_QUERY, {"login": login}, token)
-    return extract_stats(data)
+    data = run_query(STATS_QUERY, {"login": login, "cursor": None}, token)
+    stats = extract_stats(data)
+    # Sum stars across ALL owned repos, not just the first page of 100.
+    page = data["user"]["repositories"]["pageInfo"]
+    while page["hasNextPage"]:
+        data = run_query(STATS_QUERY, {"login": login, "cursor": page["endCursor"]}, token)
+        repos = data["user"]["repositories"]
+        stats["stars"] += sum_stars(repos["nodes"])
+        page = repos["pageInfo"]
+    return stats
 
 
 def build_values(stats: dict, now: datetime) -> dict:
