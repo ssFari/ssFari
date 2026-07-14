@@ -1,0 +1,39 @@
+"""Generate an animated contribution-snake SVG that grows as it eats."""
+from __future__ import annotations
+
+import os
+
+from today import run_query
+
+CELL = 11
+GAP = 2
+STEP_MS = 60
+MAX_LEN = 16
+
+LEVEL_MAP = {
+    "NONE": 0,
+    "FIRST_QUARTILE": 1,
+    "SECOND_QUARTILE": 2,
+    "THIRD_QUARTILE": 3,
+    "FOURTH_QUARTILE": 4,
+}
+
+CALENDAR_QUERY = """
+query ($login: String!) {
+  user(login: $login) {
+    contributionsCollection {
+      contributionCalendar {
+        weeks {
+          contributionDays { contributionLevel weekday }
+        }
+      }
+    }
+  }
+}
+"""
+
+
+def fetch_calendar(login: str, token: str) -> list[dict]:
+    data = run_query(CALENDAR_QUERY, {"login": login}, token)
+    cal = data["user"]["contributionsCollection"]["contributionCalendar"]
+    return cal["weeks"]
