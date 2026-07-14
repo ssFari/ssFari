@@ -17,8 +17,8 @@ jobs:
         with:
           github_user_name: ssFari
           outputs: |
-            dist/github-snake.svg
-            dist/github-snake-dark.svg?palette=github-dark
+            dist/github-snake.svg?color_snake=#5b6b7d&color_dots=#e5e7eb,#c3ccd6,#9aa7b5,#6b7a8c,#3d4b5a
+            dist/github-snake-dark.svg?color_snake=#8aa0b8&color_dots=#0d1b2a,#1e3a5f,#2e5480,#4a7ab5,#6ea3e0
       - uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output

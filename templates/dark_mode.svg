@@ -1,19 +1,30 @@
-<svg width="480" height="240" viewBox="0 0 480 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="480" height="452" viewBox="0 0 480 452" fill="none" xmlns="http://www.w3.org/2000/svg">
   <style>
-    .bg { fill: #0d1117; }
-    .border { stroke: #39d353; stroke-width: 1.5; fill: none; }
-    .txt { font-family: 'JetBrains Mono','Consolas',monospace; font-size: 15px; fill: #39d353; }
-    .dim { fill: #2ea043; }
-    .head { font-family: 'JetBrains Mono','Consolas',monospace; font-size: 15px; font-weight: 700; fill: #39d353; }
+    .mono { font-family: 'JetBrains Mono','Consolas',monospace; font-size: 15px; }
+    .bg { fill: #0d1b2a; }
+    .border { stroke: #26415e; stroke-width: 1.5; fill: none; }
+    .head { fill: #e6edf3; font-weight: 700; }
+    .div { fill: #3d5a7a; }
+    .lbl { fill: #8aa0b8; }
+    .val { fill: #d7e0ea; }
+    .sec { fill: #5f7fa0; font-weight: 700; }
   </style>
-  <rect class="bg" x="1" y="1" width="478" height="238" rx="10"/>
-  <rect class="border" x="6" y="6" width="468" height="228" rx="8"/>
-  <text class="head" x="24" y="38">safari@github</text>
-  <text class="dim" x="24" y="54">----------------------------</text>
-  <text class="txt" x="24" y="86">&gt; uptime       : {{ uptime }}</text>
-  <text class="txt" x="24" y="114">&gt; repos        : {{ repos }}</text>
-  <text class="txt" x="24" y="142">&gt; stars        : {{ stars }}</text>
-  <text class="txt" x="24" y="170">&gt; followers    : {{ followers }}</text>
-  <text class="txt" x="24" y="198">&gt; commits (yr) : {{ commits }}</text>
-  <text class="txt" x="24" y="226">&gt; contributed  : {{ contributions }}</text>
+  <rect class="bg" x="1" y="1" width="478" height="450" rx="10"/>
+  <rect class="border" x="6" y="6" width="468" height="440" rx="8"/>
+  <text class="mono head" x="24" y="40">safari@github</text>
+  <text class="mono div" x="24" y="58">----------------------------</text>
+  <text class="mono" x="24" y="90"><tspan class="lbl">&gt; uptime       : </tspan><tspan class="val">{{ uptime }}</tspan></text>
+  <text class="mono" x="24" y="116"><tspan class="lbl">&gt; repos        : </tspan><tspan class="val">{{ repos }}</tspan></text>
+  <text class="mono" x="24" y="142"><tspan class="lbl">&gt; stars        : </tspan><tspan class="val">{{ stars }}</tspan></text>
+  <text class="mono" x="24" y="168"><tspan class="lbl">&gt; followers    : </tspan><tspan class="val">{{ followers }}</tspan></text>
+  <text class="mono" x="24" y="194"><tspan class="lbl">&gt; commits (yr) : </tspan><tspan class="val">{{ commits }}</tspan></text>
+  <text class="mono" x="24" y="220"><tspan class="lbl">&gt; contributed  : </tspan><tspan class="val">{{ contributions }}</tspan></text>
+  <text class="mono div" x="24" y="248">----------------------------</text>
+  <text class="mono sec" x="24" y="276">&gt; stack</text>
+  <text class="mono" x="24" y="304"><tspan class="lbl">&gt; languages    : </tspan><tspan class="val">TypeScript, JavaScript</tspan></text>
+  <text class="mono" x="24" y="330"><tspan class="lbl">&gt; frameworks   : </tspan><tspan class="val">Next.js, React, Node.js</tspan></text>
+  <text class="mono" x="24" y="356"><tspan class="lbl">&gt; styling      : </tspan><tspan class="val">Tailwind CSS</tspan></text>
+  <text class="mono" x="24" y="382"><tspan class="lbl">&gt; runtime      : </tspan><tspan class="val">Bun</tspan></text>
+  <text class="mono" x="24" y="408"><tspan class="lbl">&gt; database     : </tspan><tspan class="val">PostgreSQL</tspan></text>
+  <text class="mono" x="24" y="434"><tspan class="lbl">&gt; tools        : </tspan><tspan class="val">Git</tspan></text>
 </svg>
