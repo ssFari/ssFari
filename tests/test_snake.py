@@ -69,3 +69,24 @@ def test_build_timeline_aligns_levels_and_eats():
         [path.index((0, 1)), path.index((1, 3))]
     )
     assert tl["max_len"] == 16
+
+
+def test_render_svg_is_wellformed_and_themed():
+    grid = [[0, 1, 0, 2, 0, 3, 0], [4, 0, 1, 0, 2, 0, 3]]
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    assert svg.startswith("<svg")
+    assert svg.rstrip().endswith("</svg>")
+    assert "@keyframes move" in svg
+    assert "@keyframes swallow" in svg
+    assert "#0d1b2a" in svg            # warna tema dark
+    assert "{{" not in svg              # nol placeholder
+    # jumlah rect sel = 14, plus segmen ular (<= MAX_LEN)
+    assert svg.count("<rect") >= 14
+
+
+def test_render_svg_light_theme_uses_gray():
+    grid = [[1, 0, 0, 0, 0, 0, 0]]
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "light")
+    assert "#e5e7eb" in svg
