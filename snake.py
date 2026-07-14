@@ -37,3 +37,13 @@ def fetch_calendar(login: str, token: str) -> list[dict]:
     data = run_query(CALENDAR_QUERY, {"login": login}, token)
     cal = data["user"]["contributionsCollection"]["contributionCalendar"]
     return cal["weeks"]
+
+
+def build_grid(weeks: list[dict]) -> list[list[int]]:
+    grid = []
+    for week in weeks:
+        col = [0] * 7
+        for day in week["contributionDays"]:
+            col[day["weekday"]] = LEVEL_MAP.get(day["contributionLevel"], 0)
+        grid.append(col)
+    return grid
