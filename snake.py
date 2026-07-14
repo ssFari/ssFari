@@ -56,3 +56,19 @@ def build_path(grid: list[list[int]]) -> list[tuple[int, int]]:
         for r in rows:
             path.append((c, r))
     return path
+
+
+def snake_length(step: int, eaten: int, max_len: int = MAX_LEN) -> int:
+    return min(eaten + 1, max_len)
+
+
+def build_timeline(path, grid, max_len: int = MAX_LEN) -> dict:
+    levels = [grid[c][r] for (c, r) in path]
+    eat_steps = [i for i, lv in enumerate(levels) if lv > 0]
+    return {
+        "steps": len(path),
+        "cells": path,
+        "levels": levels,
+        "eat_steps": eat_steps,
+        "max_len": max_len,
+    }
