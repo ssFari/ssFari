@@ -83,6 +83,8 @@ def test_render_svg_is_wellformed_and_themed():
     assert "{{" not in svg              # nol placeholder
     # jumlah rect sel = 14, plus segmen ular (<= MAX_LEN)
     assert svg.count("<rect") >= 14
+    expected_segments = min(16, len(tl["eat_steps"]) + 1)
+    assert svg.count('rx="3"') == expected_segments
 
 
 def test_render_svg_light_theme_uses_gray():
@@ -90,3 +92,13 @@ def test_render_svg_light_theme_uses_gray():
     tl = snake.build_timeline(snake.build_path(grid), grid)
     svg = snake.render_svg(grid, tl, "light")
     assert "#e5e7eb" in svg
+
+
+def test_render_svg_empty_contributions_head_only():
+    import xml.etree.ElementTree as ET
+    grid = [[0] * 7 for _ in range(4)]          # no contributions anywhere
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    ET.fromstring(svg)                          # well-formed
+    assert tl["eat_steps"] == []
+    assert svg.count('rx="3"') == 1             # head only, no growth

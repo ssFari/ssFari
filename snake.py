@@ -132,6 +132,7 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
             appear = 0.0
         elif k - 1 < len(eat_steps):
             appear = eat_steps[k - 1] / denom * 100
+            appear = min(appear, 99.9)
         else:
             break
         op = max(0.2, 1 - k * 0.05)
@@ -169,7 +170,7 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
         if k > 0 and k - 1 >= len(eat_steps):
             break
         delay = k * STEP_MS
-        anims = [f"move {dur}ms linear {delay}ms infinite",
+        anims = [f"move {dur}ms linear {delay}ms infinite both",
                  f"grow{k} {dur}ms linear infinite"]
         fill = t["head"]
         if k > 0:
