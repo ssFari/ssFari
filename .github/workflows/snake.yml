@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "snake.py"
+      - ".github/workflows/snake.yml"
 
 permissions:
   contents: write
@@ -12,13 +17,15 @@ jobs:
   snake:
     runs-on: ubuntu-latest
     steps:
-      - uses: Platane/snk@v3
-        id: snake
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          github_user_name: ssFari
-          outputs: |
-            dist/github-snake.svg?color_snake=#5b6b7d&color_dots=#e5e7eb,#c3ccd6,#9aa7b5,#6b7a8c,#3d4b5a
-            dist/github-snake-dark.svg?color_snake=#8aa0b8&color_dots=#0d1b2a,#1e3a5f,#2e5480,#4a7ab5,#6ea3e0
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python snake.py
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GH_LOGIN: ssFari
       - uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output
