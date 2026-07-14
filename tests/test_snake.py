@@ -36,3 +36,15 @@ def test_build_grid_pads_and_maps_levels():
     assert len(grid) == 2
     assert grid[0] == [0, 0, 0, 2, 0, 0, 0]
     assert grid[1] == [0, 0, 0, 0, 0, 0, 4]
+
+
+def test_build_path_zigzag_visits_all_once():
+    grid = [[0] * 7 for _ in range(3)]  # 3 columns, 7 rows
+    path = snake.build_path(grid)
+    assert len(path) == 21
+    assert len(set(path)) == 21          # unik semua
+    assert path[0] == (0, 0)
+    assert path[6] == (0, 6)             # kolom 0 turun 0->6
+    assert path[7] == (1, 6)             # kolom 1 mulai dari bawah
+    assert path[13] == (1, 0)            # kolom 1 naik 6->0
+    assert path[14] == (2, 0)            # kolom 2 turun lagi

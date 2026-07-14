@@ -47,3 +47,12 @@ def build_grid(weeks: list[dict]) -> list[list[int]]:
             col[day["weekday"]] = LEVEL_MAP.get(day["contributionLevel"], 0)
         grid.append(col)
     return grid
+
+
+def build_path(grid: list[list[int]]) -> list[tuple[int, int]]:
+    path = []
+    for c in range(len(grid)):
+        rows = range(7) if c % 2 == 0 else range(6, -1, -1)
+        for r in rows:
+            path.append((c, r))
+    return path
