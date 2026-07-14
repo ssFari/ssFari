@@ -182,3 +182,25 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
 
     parts.append("</svg>")
     return "".join(parts)
+
+
+def _write(path: str, content: str) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(content)
+
+
+def main() -> None:
+    token = os.environ["ACCESS_TOKEN"]
+    login = os.environ.get("GH_LOGIN", "ssFari")
+    weeks = fetch_calendar(login, token)
+    grid = build_grid(weeks)
+    timeline = build_timeline(build_path(grid), grid)
+    _write("dist/github-snake-dark.svg", render_svg(grid, timeline, "dark"))
+    _write("dist/github-snake.svg", render_svg(grid, timeline, "light"))
+    print(f"Generated snake for {login}: {timeline['steps']} cells, "
+          f"{len(timeline['eat_steps'])} contributions")
+
+
+if __name__ == "__main__":
+    main()
