@@ -159,3 +159,26 @@ def test_render_svg_cell_keyframe_returns_to_level_color():
     body = svg[start:svg.index("}", svg.index("100%", start))]
     assert "#1e3a5f" in body                # warna level-1 dark
     assert "#0d1b2a" in body                # sempat jadi empty (termakan)
+
+
+def _dense_grid():
+    # 53 minggu, tiap sel punya kontribusi mencakup keempat level
+    return [[(c + r) % 4 + 1 for r in range(7)] for c in range(53)]
+
+
+def test_render_svg_dense_grid_wellformed_and_capped():
+    import xml.etree.ElementTree as ET
+    grid = _dense_grid()
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    ET.fromstring(svg)
+    assert tl["present_levels"] == [1, 2, 3, 4]
+    assert svg.count('rx="3"') == 16          # segmen tercap
+    assert len(svg) < 400_000                 # anggaran ukuran
+
+
+def test_render_svg_loop_duration_bounded():
+    grid = _dense_grid()
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    dur_ms = tl["total"] * snake.STEP_MS
+    assert dur_ms <= 60_000                    # loop <= 60 dtk kasus terburuk
