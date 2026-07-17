@@ -112,9 +112,14 @@ timeline `swallow` bersama yang di-delay `k×STEP_MS` (bukan warna fix di rect).
   (tetap warna aksen `head`).
 - **`grow{k}` (per segmen, opacity saja)**: muncul di `eat_events[k-1]`, tetap
   tampil, lalu **opacity→0 di fase reset** (ular menyusut ke 1 saat loop).
-- **Sel kontribusi**: keyframe **loop penuh** (bukan `forwards`). Fill = warna
-  level; fade-out (`→ empty`) pada frame saat sel itu dimakan di pass-nya;
-  fade-in kembali ke warna level pada fase reset. Semua sinkron `infinite`.
+- **Sel kontribusi (grafik permanen)**: keyframe **loop penuh** (bukan
+  `forwards`). Warna level tampil **permanen**; hanya **meredup sesaat** (dip
+  transien selebar `FLASH_FRAMES`) tepat saat kepala melahapnya, lalu **langsung
+  pulih** — tidak ditahan kosong sampai reset. Jadi grafik kontribusi selalu
+  terbaca sepanjang loop; ular yang lewat hanya "mengedipkan" sel. Semua sinkron
+  `infinite`.
+- **Palet kontras**: level 1–4 dibuat jelas berbeda dari `empty` (terutama
+  level-1) agar kontribusi "pop"; dark = ramp biru navy, light = ramp abu.
 - **Durasi:** semua animasi = `total × STEP_MS`, `infinite`, sinkron. `STEP_MS`
   diturunkan ke **20ms** agar worst-case 4 level (`4 × 371 + reset`) ≈ 30 dtk
   (profil dengan lebih sedikit level → lebih pendek). Jumlah sapuan bergantung
