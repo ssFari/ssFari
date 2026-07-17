@@ -7,7 +7,7 @@ from today import run_query
 
 CELL = 11
 GAP = 2
-STEP_MS = 30
+STEP_MS = 20
 MAX_LEN = 16
 RESET_FRAMES = 40
 
@@ -69,8 +69,11 @@ def build_timeline(path, grid, max_len: int = MAX_LEN) -> dict:
     sweep_levels = present_levels or [0]  # grid kosong: satu sapuan tanpa makan
 
     frames = []
-    for level in sweep_levels:
-        for cell in path:
+    for pass_index, level in enumerate(sweep_levels):
+        # boustrophedon: balik arah sapuan berselang agar kepala mengalir
+        # kontinu tanpa teleport di batas antar-pass
+        ordered = path if pass_index % 2 == 0 else list(reversed(path))
+        for cell in ordered:
             is_eat = level > 0 and lookup[cell] == level
             frames.append({
                 "cell": cell,
@@ -78,7 +81,7 @@ def build_timeline(path, grid, max_len: int = MAX_LEN) -> dict:
                 "food_level": level if is_eat else None,
             })
     reset_start = len(frames)
-    last = path[-1] if path else (0, 0)
+    last = frames[-1]["cell"] if frames else (0, 0)
     frames.extend(
         {"cell": last, "is_eat": False, "food_level": None}
         for _ in range(RESET_FRAMES)

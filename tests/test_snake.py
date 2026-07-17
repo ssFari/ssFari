@@ -182,3 +182,13 @@ def test_render_svg_loop_duration_bounded():
     tl = snake.build_timeline(snake.build_path(grid), grid)
     dur_ms = tl["total"] * snake.STEP_MS
     assert dur_ms <= 60_000                    # loop <= 60 dtk kasus terburuk
+
+
+def test_no_teleport_between_frames_before_reset():
+    grid = [[(c + r) % 4 + 1 for r in range(7)] for c in range(6)]
+    path = snake.build_path(grid)
+    tl = snake.build_timeline(path, grid)
+    frames = tl["frames"][:tl["reset_start"]]
+    for a, b in zip(frames, frames[1:]):
+        (c1, r1), (c2, r2) = a["cell"], b["cell"]
+        assert max(abs(c1 - c2), abs(r1 - r2)) <= 1
