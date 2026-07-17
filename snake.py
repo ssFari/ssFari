@@ -10,6 +10,7 @@ GAP = 2
 STEP_MS = 20
 MAX_LEN = 16
 RESET_FRAMES = 40
+FLASH_FRAMES = 20  # lebar 'kedip' sel saat dimakan (~0.4 dtk @ STEP_MS=20)
 
 LEVEL_MAP = {
     "NONE": 0,
@@ -104,13 +105,13 @@ def build_timeline(path, grid, max_len: int = MAX_LEN) -> dict:
 THEMES = {
     "dark": {
         "empty": "#0d1b2a",
-        "levels": ["#0d1b2a", "#1e3a5f", "#2e5480", "#4a7ab5", "#6ea3e0"],
-        "head": "#8ab4f0",
+        "levels": ["#0d1b2a", "#234b74", "#3670ac", "#529fe0", "#7dc4ff"],
+        "head": "#a9d8ff",
     },
     "light": {
-        "empty": "#e5e7eb",
-        "levels": ["#e5e7eb", "#c3ccd6", "#9aa7b5", "#6b7a8c", "#3d4b5a"],
-        "head": "#3d4b5a",
+        "empty": "#ebedf0",
+        "levels": ["#ebedf0", "#b8c2cf", "#8494a6", "#556577", "#2b3947"],
+        "head": "#1e2a36",
     },
 }
 
@@ -143,24 +144,27 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
     reset_start = timeline["reset_start"]
     reset_pct = pct(reset_start)
 
-    # keyframe loop per sel kontribusi: warna -> (saat dimakan) empty ->
-    # (fase reset) tumbuh kembali ke warna level
+    # keyframe per sel: warna kontribusi tampil PERMANEN, hanya meredup sesaat
+    # (dip transien) saat kepala melahapnya lalu langsung pulih — grafik selalu
+    # terbaca, tidak menunggu reset.
+    flash_pct = FLASH_FRAMES / denom * 100
     for c in range(cols):
         for r in range(7):
             lv = grid[c][r]
             if lv <= 0:
                 continue
             ef = eat_frame[(c, r)]
-            ep = pct(ef)
-            ep2 = min(ep + 0.4, 99.9)
-            rp2 = min(reset_pct + 0.4, 100)
+            a = pct(ef)                       # tepat sebelum dimakan
+            m = min(a + flash_pct / 2, 99.8)  # titik terendah dip (empty)
+            bk = min(a + flash_pct, 99.9)     # sudah pulih ke warna
+            if m >= bk:                        # jaga urutan di ekor timeline
+                m = max(a, bk - 0.01)
             color = t["levels"][lv]
             empty = t["empty"]
             style.append(
                 f"@keyframes cell_{c}_{r}{{0%{{fill:{color};}}"
-                f"{ep:.3f}%{{fill:{color};}}{ep2:.3f}%{{fill:{empty};}}"
-                f"{reset_pct:.3f}%{{fill:{empty};}}{rp2:.3f}%{{fill:{color};}}"
-                f"100%{{fill:{color};}}}}"
+                f"{a:.3f}%{{fill:{color};}}{m:.3f}%{{fill:{empty};}}"
+                f"{bk:.3f}%{{fill:{color};}}100%{{fill:{color};}}}}"
             )
 
     # move: posisi melintasi seluruh frames (multi-pass + reset)

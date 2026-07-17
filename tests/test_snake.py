@@ -120,7 +120,8 @@ def test_render_svg_light_theme_uses_gray():
     grid = [[1, 0, 0, 0, 0, 0, 0]]
     tl = snake.build_timeline(snake.build_path(grid), grid)
     svg = snake.render_svg(grid, tl, "light")
-    assert "#e5e7eb" in svg
+    assert snake.THEMES["light"]["empty"] in svg     # empty tema light
+    assert snake.THEMES["light"]["levels"][1] in svg  # level-1 kontras
 
 
 def test_render_svg_empty_contributions_head_only():
@@ -154,11 +155,23 @@ def test_render_svg_cell_keyframe_returns_to_level_color():
     grid = [[0, 1, 0, 0, 0, 0, 0]]
     tl = snake.build_timeline(snake.build_path(grid), grid)
     svg = snake.render_svg(grid, tl, "dark")
-    # keyframe sel berakhir kembali ke warna level (loop refill)
+    # keyframe sel berakhir kembali ke warna level (grafik permanen)
     start = svg.index("@keyframes cell_0_1{")
     body = svg[start:svg.index("}", svg.index("100%", start))]
-    assert "#1e3a5f" in body                # warna level-1 dark
-    assert "#0d1b2a" in body                # sempat jadi empty (termakan)
+    assert snake.THEMES["dark"]["levels"][1] in body  # warna level-1 dark
+    assert snake.THEMES["dark"]["empty"] in body      # sempat meredup (dip)
+
+
+def test_render_svg_cell_flash_is_transient_not_held():
+    # Grafik selalu tampil: sel hanya meredup SEKALI (dip transien) saat
+    # dimakan, tidak ditahan kosong sampai reset (yang bikin warna hilang lama).
+    grid = [[0, 1, 0, 0, 0, 0, 0]]
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    start = svg.index("@keyframes cell_0_1{")
+    body = svg[start:svg.index("}}", start) + 2]     # blok keyframe utuh
+    empty = snake.THEMES["dark"]["empty"]
+    assert body.count(f"fill:{empty};") == 1          # dip sekali, bukan ditahan
 
 
 def _dense_grid():
