@@ -137,12 +137,28 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
 
     style = ["<style>", f".cell{{width:{CELL}px;height:{CELL}px;}}"]
 
-    # eaten fade per level (interim: forwards, diganti loop di Task 2)
-    for lv in range(1, 5):
-        style.append(
-            f"@keyframes eat{lv}{{from{{fill:{t['levels'][lv]};}}"
-            f"to{{fill:{t['empty']};}}}}"
-        )
+    reset_start = timeline["reset_start"]
+    reset_pct = pct(reset_start)
+
+    # keyframe loop per sel kontribusi: warna -> (saat dimakan) empty ->
+    # (fase reset) tumbuh kembali ke warna level
+    for c in range(cols):
+        for r in range(7):
+            lv = grid[c][r]
+            if lv <= 0:
+                continue
+            ef = eat_frame[(c, r)]
+            ep = pct(ef)
+            ep2 = min(ep + 0.4, 99.9)
+            rp2 = min(reset_pct + 0.4, 100)
+            color = t["levels"][lv]
+            empty = t["empty"]
+            style.append(
+                f"@keyframes cell_{c}_{r}{{0%{{fill:{color};}}"
+                f"{ep:.3f}%{{fill:{color};}}{ep2:.3f}%{{fill:{empty};}}"
+                f"{reset_pct:.3f}%{{fill:{empty};}}{rp2:.3f}%{{fill:{color};}}"
+                f"100%{{fill:{color};}}}}"
+            )
 
     # move: posisi melintasi seluruh frames (multi-pass + reset)
     move = "".join(
@@ -162,14 +178,22 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
         swallow_stops.append(f"{pct(i):.3f}%{{fill:{color};}}")
     style.append("@keyframes swallow{" + "".join(swallow_stops) + "}")
 
-    # grow{k}: opacity per segmen (muncul saat makan ke-k)
+    # grow{k}: opacity per segmen — muncul saat makan ke-k, menyusut saat reset
     for k in range(n_segments):
         op = max(0.2, 1 - k * 0.05)
-        appear = 0.0 if k == 0 else min(pct(eat_events[k - 1]["frame"]), 99.9)
+        if k == 0:
+            # kepala: tampil sepanjang loop (ular menyusut ke 1 segmen)
+            style.append(
+                f"@keyframes grow0{{0%{{opacity:{op};}}"
+                f"{reset_pct:.3f}%{{opacity:{op};}}100%{{opacity:{op};}}}}"
+            )
+            continue
+        appear = min(pct(eat_events[k - 1]["frame"]), 99.9)
         nxt = min(appear + 0.001, 100)
         style.append(
             f"@keyframes grow{k}{{0%{{opacity:0;}}{appear:.3f}%{{opacity:0;}}"
-            f"{nxt:.3f}%{{opacity:{op};}}100%{{opacity:{op};}}}}"
+            f"{nxt:.3f}%{{opacity:{op};}}{reset_pct:.3f}%{{opacity:{op};}}"
+            f"100%{{opacity:0;}}}}"
         )
     style.append("</style>")
 
@@ -185,11 +209,10 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
             lv = grid[c][r]
             x, y = _xy((c, r))
             if lv > 0:
-                ef = eat_frame[(c, r)]
                 parts.append(
                     f'<rect class="cell" rx="2" x="{x}" y="{y}" '
                     f'style="fill:{t["levels"][lv]};'
-                    f'animation:eat{lv} 400ms linear {ef * STEP_MS}ms forwards;"/>'
+                    f'animation:cell_{c}_{r} {dur}ms linear infinite;"/>'
                 )
             else:
                 parts.append(

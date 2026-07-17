@@ -131,3 +131,31 @@ def test_render_svg_empty_contributions_head_only():
     ET.fromstring(svg)
     assert tl["eat_events"] == []
     assert svg.count('rx="3"') == 1
+
+
+def test_render_svg_cells_loop_not_forwards():
+    grid = [[0, 1, 0, 2, 0, 0, 0]]
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    assert "forwards" not in svg            # sel regrow, bukan sekali jalan
+    assert "@keyframes cell_" in svg        # keyframe loop per sel
+    assert "animation:cell_0_1" in svg      # sel level-1 dipakai
+
+
+def test_render_svg_snake_shrinks_at_reset():
+    grid = [[0, 1, 0, 2, 0, 0, 0]]
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    # segmen badan berakhir opacity 0 -> ular menyusut ke kepala saat reset
+    assert "100%{opacity:0;}" in svg
+
+
+def test_render_svg_cell_keyframe_returns_to_level_color():
+    grid = [[0, 1, 0, 0, 0, 0, 0]]
+    tl = snake.build_timeline(snake.build_path(grid), grid)
+    svg = snake.render_svg(grid, tl, "dark")
+    # keyframe sel berakhir kembali ke warna level (loop refill)
+    start = svg.index("@keyframes cell_0_1{")
+    body = svg[start:svg.index("}", svg.index("100%", start))]
+    assert "#1e3a5f" in body                # warna level-1 dark
+    assert "#0d1b2a" in body                # sempat jadi empty (termakan)
