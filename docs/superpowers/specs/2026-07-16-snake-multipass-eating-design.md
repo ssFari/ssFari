@@ -46,6 +46,10 @@ Memperbaiki dua hal pada generator ular custom:
 ## Keputusan Desain (terkunci)
 - **Mekanik makan:** multi-pass per level. Jalur zig-zag tetap; sapuan-*n* makan
   level-*n* saja, lewati (pass-over) level lebih tinggi.
+- **Arah sapuan boustrophedon:** sapuan berselang dibalik arahnya (pass genap
+  maju, pass ganjil mundur) supaya kepala mengalir kontinu di batas antar-pass
+  tanpa teleport/streak. "Terkecil dulu" tetap utuh (urutan level tak berubah);
+  hanya urutan kunjungan sel dalam pass ganjil yang mundur.
 - **Jumlah pass:** hanya level yang **benar-benar ada** di grid. Akun level 1–2 →
   2 pass; tidak selalu 4.
 - **Panjang:** carry-over lintas pass sampai cap 16; ekor memudar FIFO setelah 16.
@@ -112,7 +116,9 @@ timeline `swallow` bersama yang di-delay `k×STEP_MS` (bukan warna fix di rect).
   level; fade-out (`→ empty`) pada frame saat sel itu dimakan di pass-nya;
   fade-in kembali ke warna level pada fase reset. Semua sinkron `infinite`.
 - **Durasi:** semua animasi = `total × STEP_MS`, `infinite`, sinkron. `STEP_MS`
-  diturunkan (mis. 60→35ms) agar `present_levels × 371 × STEP_MS + reset` ≈ 20–30 dtk.
+  diturunkan ke **20ms** agar worst-case 4 level (`4 × 371 + reset`) ≈ 30 dtk
+  (profil dengan lebih sedikit level → lebih pendek). Jumlah sapuan bergantung
+  pada **berapa level distinct** yang hadir, bukan kepadatan grid.
 - **Kepala:** segmen ke-0 tetap warna aksen `head` agar arah jelas.
 
 ## Data Flow
