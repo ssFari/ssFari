@@ -7,8 +7,9 @@ from today import run_query
 
 CELL = 11
 GAP = 2
-STEP_MS = 60
+STEP_MS = 30
 MAX_LEN = 16
+RESET_FRAMES = 40
 
 LEVEL_MAP = {
     "NONE": 0,
@@ -63,13 +64,36 @@ def snake_length(step: int, eaten: int, max_len: int = MAX_LEN) -> int:
 
 
 def build_timeline(path, grid, max_len: int = MAX_LEN) -> dict:
-    levels = [grid[c][r] for (c, r) in path]
-    eat_steps = [i for i, lv in enumerate(levels) if lv > 0]
+    lookup = {(c, r): grid[c][r] for c in range(len(grid)) for r in range(7)}
+    present_levels = sorted({lv for col in grid for lv in col if lv > 0})
+    sweep_levels = present_levels or [0]  # grid kosong: satu sapuan tanpa makan
+
+    frames = []
+    for level in sweep_levels:
+        for cell in path:
+            is_eat = level > 0 and lookup[cell] == level
+            frames.append({
+                "cell": cell,
+                "is_eat": is_eat,
+                "food_level": level if is_eat else None,
+            })
+    reset_start = len(frames)
+    last = path[-1] if path else (0, 0)
+    frames.extend(
+        {"cell": last, "is_eat": False, "food_level": None}
+        for _ in range(RESET_FRAMES)
+    )
+    eat_events = [
+        {"frame": i, "cell": f["cell"], "level": f["food_level"]}
+        for i, f in enumerate(frames)
+        if f["is_eat"]
+    ]
     return {
-        "steps": len(path),
-        "cells": path,
-        "levels": levels,
-        "eat_steps": eat_steps,
+        "frames": frames,
+        "total": len(frames),
+        "eat_events": eat_events,
+        "present_levels": present_levels,
+        "reset_start": reset_start,
         "max_len": max_len,
     }
 
@@ -98,44 +122,50 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
     cols = len(grid)
     width = cols * (CELL + GAP) - GAP
     height = 7 * (CELL + GAP) - GAP
-    steps = timeline["steps"]
-    path = timeline["cells"]
-    levels = timeline["levels"]
-    eat_steps = timeline["eat_steps"]
+    frames = timeline["frames"]
+    total = timeline["total"]
+    eat_events = timeline["eat_events"]
     max_len = timeline["max_len"]
-    dur = steps * STEP_MS
-    denom = max(steps - 1, 1)
+    denom = max(total - 1, 1)
+    dur = total * STEP_MS
 
-    style = ["<style>"]
-    style.append(f".cell{{width:{CELL}px;height:{CELL}px;}}")
-    # eaten fade per level
+    def pct(i: int) -> float:
+        return i / denom * 100
+
+    eat_frame = {ev["cell"]: ev["frame"] for ev in eat_events}
+    n_segments = min(max_len, len(eat_events) + 1)
+
+    style = ["<style>", f".cell{{width:{CELL}px;height:{CELL}px;}}"]
+
+    # eaten fade per level (interim: forwards, diganti loop di Task 2)
     for lv in range(1, 5):
         style.append(
             f"@keyframes eat{lv}{{from{{fill:{t['levels'][lv]};}}"
             f"to{{fill:{t['empty']};}}}}"
         )
-    # shared move keyframes
+
+    # move: posisi melintasi seluruh frames (multi-pass + reset)
     move = "".join(
-        f"{i / denom * 100:.3f}%{{transform:translate({_xy(c)[0]}px,{_xy(c)[1]}px);}}"
-        for i, c in enumerate(path)
+        f"{pct(i):.3f}%{{transform:translate({_xy(f['cell'])[0]}px,"
+        f"{_xy(f['cell'])[1]}px);}}"
+        for i, f in enumerate(frames)
     )
     style.append("@keyframes move{" + move + "}")
-    # shared swallow (color) keyframes
-    swallow = "".join(
-        f"{i / denom * 100:.3f}%{{fill:{t['levels'][lv]};}}"
-        for i, lv in enumerate(levels)
-    )
-    style.append("@keyframes swallow{" + swallow + "}")
-    # per-segment growth (appear at eat time)
-    for k in range(max_len):
-        if k == 0:
-            appear = 0.0
-        elif k - 1 < len(eat_steps):
-            appear = eat_steps[k - 1] / denom * 100
-            appear = min(appear, 99.9)
-        else:
-            break
+
+    # swallow: warna makanan piecewise-constant yang dibawa turun badan
+    swallow_stops = []
+    cur = None
+    for i, f in enumerate(frames):
+        if f["is_eat"]:
+            cur = f["food_level"]
+        color = t["levels"][cur] if cur else t["empty"]
+        swallow_stops.append(f"{pct(i):.3f}%{{fill:{color};}}")
+    style.append("@keyframes swallow{" + "".join(swallow_stops) + "}")
+
+    # grow{k}: opacity per segmen (muncul saat makan ke-k)
+    for k in range(n_segments):
         op = max(0.2, 1 - k * 0.05)
+        appear = 0.0 if k == 0 else min(pct(eat_events[k - 1]["frame"]), 99.9)
         nxt = min(appear + 0.001, 100)
         style.append(
             f"@keyframes grow{k}{{0%{{opacity:0;}}{appear:.3f}%{{opacity:0;}}"
@@ -149,26 +179,26 @@ def render_svg(grid: list[list[int]], timeline: dict, theme: str) -> str:
         "".join(style),
     ]
 
-    # contribution cells
-    for i, c in enumerate(path):
-        lv = levels[i]
-        x, y = _xy(c)
-        if lv > 0:
-            parts.append(
-                f'<rect class="cell" rx="2" x="{x}" y="{y}" '
-                f'style="fill:{t["levels"][lv]};'
-                f'animation:eat{lv} 400ms linear {i * STEP_MS}ms forwards;"/>'
-            )
-        else:
-            parts.append(
-                f'<rect class="cell" rx="2" x="{x}" y="{y}" '
-                f'style="fill:{t["empty"]};"/>'
-            )
+    # sel kontribusi
+    for c in range(cols):
+        for r in range(7):
+            lv = grid[c][r]
+            x, y = _xy((c, r))
+            if lv > 0:
+                ef = eat_frame[(c, r)]
+                parts.append(
+                    f'<rect class="cell" rx="2" x="{x}" y="{y}" '
+                    f'style="fill:{t["levels"][lv]};'
+                    f'animation:eat{lv} 400ms linear {ef * STEP_MS}ms forwards;"/>'
+                )
+            else:
+                parts.append(
+                    f'<rect class="cell" rx="2" x="{x}" y="{y}" '
+                    f'style="fill:{t["empty"]};"/>'
+                )
 
-    # snake segments
-    for k in range(max_len):
-        if k > 0 and k - 1 >= len(eat_steps):
-            break
+    # segmen ular
+    for k in range(n_segments):
         delay = k * STEP_MS
         anims = [f"move {dur}ms linear {delay}ms infinite both",
                  f"grow{k} {dur}ms linear infinite"]
@@ -199,8 +229,8 @@ def main() -> None:
     timeline = build_timeline(build_path(grid), grid)
     _write("dist/github-snake-dark.svg", render_svg(grid, timeline, "dark"))
     _write("dist/github-snake.svg", render_svg(grid, timeline, "light"))
-    print(f"Generated snake for {login}: {timeline['steps']} cells, "
-          f"{len(timeline['eat_steps'])} contributions")
+    print(f"Generated snake for {login}: {timeline['total']} frames, "
+          f"{len(timeline['eat_events'])} contributions")
 
 
 if __name__ == "__main__":

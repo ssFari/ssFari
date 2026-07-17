@@ -56,35 +56,64 @@ def test_snake_length_grows_per_eat_then_caps():
     assert snake.snake_length(100, 50, max_len=16) == 16
 
 
-def test_build_timeline_aligns_levels_and_eats():
-    grid = [[0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0]]
+def test_build_timeline_multipass_present_levels():
+    grid = [[0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0], [0, 0, 0, 0, 0, 0, 2]]
     path = snake.build_path(grid)
-    tl = snake.build_timeline(path, grid, max_len=16)
-    assert tl["steps"] == 14
-    assert tl["cells"] == path
-    assert tl["levels"][path.index((0, 1))] == 1
-    assert tl["levels"][path.index((1, 3))] == 2
-    # eat_steps = indeks langkah di sel berisi kontribusi
-    assert tl["eat_steps"] == sorted(
-        [path.index((0, 1)), path.index((1, 3))]
-    )
+    tl = snake.build_timeline(path, grid)
+    assert tl["present_levels"] == [1, 2]
+    assert tl["total"] == len(path) * 2 + snake.RESET_FRAMES
+    assert tl["reset_start"] == len(path) * 2
     assert tl["max_len"] == 16
 
 
+def test_build_timeline_eats_only_target_level_per_pass():
+    grid = [[0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 2, 0, 0, 0]]
+    path = snake.build_path(grid)
+    tl = snake.build_timeline(path, grid)
+    pass_len = len(path)
+    pass0 = tl["frames"][:pass_len]
+    pass1 = tl["frames"][pass_len:2 * pass_len]
+    assert [f["cell"] for f in pass0 if f["is_eat"]] == [(0, 1)]
+    assert [f["cell"] for f in pass1 if f["is_eat"]] == [(1, 3)]
+    # sel level-2 dilewati (tidak dimakan) selama pass level-1
+    assert all(not f["is_eat"] for f in pass0 if f["cell"] == (1, 3))
+
+
+def test_build_timeline_eat_events_ordered_small_to_large():
+    grid = [[0, 2, 0, 1, 0, 0, 0]]  # level-2 di atas level-1 pada kolom sama
+    path = snake.build_path(grid)
+    tl = snake.build_timeline(path, grid)
+    assert [ev["level"] for ev in tl["eat_events"]] == [1, 2]
+    assert tl["eat_events"][0]["cell"] == (0, 3)  # level-1 dimakan lebih dulu
+    assert tl["eat_events"][1]["cell"] == (0, 1)  # level-2 belakangan
+    assert tl["eat_events"][0]["frame"] < tl["eat_events"][1]["frame"]
+
+
+def test_build_timeline_empty_grid_sweeps_once_no_eats():
+    grid = [[0] * 7 for _ in range(3)]
+    path = snake.build_path(grid)
+    tl = snake.build_timeline(path, grid)
+    assert tl["present_levels"] == []
+    assert tl["eat_events"] == []
+    assert tl["total"] == len(path) + snake.RESET_FRAMES
+    assert tl["reset_start"] == len(path)
+
+
 def test_render_svg_is_wellformed_and_themed():
+    import xml.etree.ElementTree as ET
     grid = [[0, 1, 0, 2, 0, 3, 0], [4, 0, 1, 0, 2, 0, 3]]
     tl = snake.build_timeline(snake.build_path(grid), grid)
     svg = snake.render_svg(grid, tl, "dark")
+    ET.fromstring(svg)
     assert svg.startswith("<svg")
     assert svg.rstrip().endswith("</svg>")
     assert "@keyframes move" in svg
     assert "@keyframes swallow" in svg
-    assert "#0d1b2a" in svg            # warna tema dark
-    assert "{{" not in svg              # nol placeholder
-    # jumlah rect sel = 14, plus segmen ular (<= MAX_LEN)
-    assert svg.count("<rect") >= 14
-    expected_segments = min(16, len(tl["eat_steps"]) + 1)
-    assert svg.count('rx="3"') == expected_segments
+    assert "#0d1b2a" in svg
+    assert "{{" not in svg
+    n_cells = sum(len(col) for col in grid)
+    assert svg.count('rx="2"') == n_cells
+    assert svg.count('rx="3"') == min(16, len(tl["eat_events"]) + 1)
 
 
 def test_render_svg_light_theme_uses_gray():
@@ -96,9 +125,9 @@ def test_render_svg_light_theme_uses_gray():
 
 def test_render_svg_empty_contributions_head_only():
     import xml.etree.ElementTree as ET
-    grid = [[0] * 7 for _ in range(4)]          # no contributions anywhere
+    grid = [[0] * 7 for _ in range(4)]
     tl = snake.build_timeline(snake.build_path(grid), grid)
     svg = snake.render_svg(grid, tl, "dark")
-    ET.fromstring(svg)                          # well-formed
-    assert tl["eat_steps"] == []
-    assert svg.count('rx="3"') == 1             # head only, no growth
+    ET.fromstring(svg)
+    assert tl["eat_events"] == []
+    assert svg.count('rx="3"') == 1
