@@ -13,7 +13,7 @@
   <rect class="border" x="6" y="6" width="468" height="440" rx="8"/>
   <text class="mono head" x="24" y="40">safari@github</text>
   <text class="mono div" x="24" y="58">----------------------------</text>
-  <text class="mono" x="24" y="90"><tspan class="lbl">&gt; uptime       : </tspan><tspan class="val">5 years, 10 months, 15 days</tspan></text>
+  <text class="mono" x="24" y="90"><tspan class="lbl">&gt; uptime       : </tspan><tspan class="val">5 years, 10 months, 16 days</tspan></text>
   <text class="mono" x="24" y="116"><tspan class="lbl">&gt; repos        : </tspan><tspan class="val">38</tspan></text>
   <text class="mono" x="24" y="142"><tspan class="lbl">&gt; stars        : </tspan><tspan class="val">31</tspan></text>
   <text class="mono" x="24" y="168"><tspan class="lbl">&gt; followers    : </tspan><tspan class="val">2</tspan></text>
