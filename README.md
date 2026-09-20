@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/fari-lofi.svg" width="760" alt="Fari memakai headphone, duduk santai di meja kerja dengan laptop, tanaman kecil, dan secangkir minuman." />
+  <img src="./assets/fari-lofi.svg" width="520" alt="Fari, karakter layar kecil ber-headphone dengan mata terpejam, ditemani secangkir teh." />
 </p>
 
 <h1 align="center">hi, i'm Safari.</h1>
