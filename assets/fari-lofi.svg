@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300" role="img" aria-labelledby="title desc">
+  <title id="title">Fari on a quiet day</title>
+  <desc id="desc">A small headphone-wearing character works at a desk beside a moonlit window, a plant, and a warm drink.</desc>
+  <defs>
+    <pattern id="grain" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r=".45" fill="#566d70" opacity=".15"/>
+      <circle cx="6" cy="5" r=".4" fill="#566d70" opacity=".1"/>
+    </pattern>
+    <clipPath id="frame"><rect width="860" height="300" rx="14"/></clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="860" height="300" fill="#e8ece8"/>
+    <rect width="860" height="300" fill="url(#grain)"/>
+    <path d="M0 236h860" stroke="#aab8ad" stroke-width="2"/>
+    <path d="M46 48h271M46 252h271" stroke="#aab8ad" stroke-width="1"/>
+
+    <!-- A quiet label, like the sleeve of a well-loved record. -->
+    <circle cx="66" cy="72" r="6" fill="#789588"/>
+    <text x="82" y="78" fill="#47665e" font-family="'Courier New',monospace" font-size="16" letter-spacing="2">SS / 01</text>
+    <text x="45" y="143" fill="#2d4143" font-family="Georgia,serif" font-size="59" letter-spacing="-2">slow days,</text>
+    <text x="45" y="199" fill="#2d4143" font-family="Georgia,serif" font-size="59" font-style="italic" letter-spacing="-2">good code.</text>
+    <text x="47" y="279" fill="#47665e" font-family="'Courier New',monospace" font-size="12" letter-spacing="2">A LITTLE SPACE TO MAKE THINGS</text>
+
+    <!-- Window, evening sky, and a tiny moon. -->
+    <rect x="573" y="27" width="230" height="170" rx="6" fill="#b8c8be" stroke="#698579" stroke-width="5"/>
+    <rect x="584" y="38" width="208" height="148" fill="#809b95"/>
+    <path d="M584 154c48-21 84-12 123 3 29 11 53 9 85-8v37H584z" fill="#6e8c83"/>
+    <circle cx="736" cy="81" r="21" fill="#dce4d8"/>
+    <circle cx="745" cy="73" r="19" fill="#809b95"/>
+    <path d="M689 38v148M584 111h208" stroke="#b8c8be" stroke-width="6"/>
+    <path d="M559 196h258" stroke="#698579" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Desk and small objects. -->
+    <path d="M382 235h451v18H382z" fill="#607a70"/>
+    <path d="M407 253h12v47h-12zm386 0h12v47h-12z" fill="#607a70"/>
+    <path d="M757 222h40l-5 13h-30z" fill="#9bad9e"/>
+    <path d="M777 221c-5-27-22-39-34-43m34 42c-2-27 2-46 18-56m-19 56c8-23 20-30 34-32" fill="none" stroke="#47665e" stroke-width="3" stroke-linecap="round"/>
+    <path d="M745 178c2-13 11-15 17-7-1 9-7 13-17 7zm42-12c-2-12 5-19 16-17 0 10-5 16-16 17zm9 27c3-12 11-15 20-10-2 10-10 14-20 10z" fill="#789588"/>
+    <path d="M729 226h25v9h-25z" fill="#d7dbce"/>
+    <path d="M752 228h6c5 0 5 6 0 6h-6" fill="none" stroke="#d7dbce" stroke-width="3"/>
+    <path d="M735 216c-5-5 4-8-1-13m10 12c-5-5 3-8-1-13" fill="none" stroke="#9bad9e" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Fari: soft hoodie, sleepy face, and oversized headphones. -->
+    <path d="M470 233c0-36 19-59 57-59h52c38 0 57 23 57 59v3H470z" fill="#789588"/>
+    <path d="M496 235c7-24 15-36 29-44m76 0c14 8 23 20 29 44" fill="none" stroke="#607a70" stroke-width="3"/>
+    <path d="M531 192l20 26 23-26" fill="none" stroke="#a4b7a8" stroke-width="4" stroke-linecap="round"/>
+    <path d="M539 215l-3 19m31-19 3 19" stroke="#dce4d8" stroke-width="3" stroke-linecap="round"/>
+    <rect x="518" y="115" width="75" height="78" rx="35" fill="#ceb9a8"/>
+    <path d="M518 149c-3-42 13-59 41-59 23 0 39 18 35 60-6-6-11-14-13-23-16 10-38 14-63 12z" fill="#344c4a"/>
+    <path d="M518 125c4-19 18-29 38-29 23 0 37 12 40 34" fill="none" stroke="#2d4143" stroke-width="9" stroke-linecap="round"/>
+    <rect x="507" y="128" width="15" height="36" rx="7" fill="#789588" stroke="#2d4143" stroke-width="3"/>
+    <rect x="589" y="128" width="15" height="36" rx="7" fill="#789588" stroke="#2d4143" stroke-width="3"/>
+    <path d="M537 155q5 5 10 0m19 0q5 5 10 0" fill="none" stroke="#344c4a" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M551 172q6 4 12 0" fill="none" stroke="#9e796a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M495 229c14-9 27-8 39 3m58 0c15-11 30-11 43-2" fill="none" stroke="#ceb9a8" stroke-width="11" stroke-linecap="round"/>
+
+    <!-- The laptop grounds the scene; its one dot is the only screen detail. -->
+    <path d="M568 187h104l-14 50H581z" fill="#405d59"/>
+    <path d="M563 236h107l9 5H556z" fill="#344c4a"/>
+    <circle cx="619" cy="211" r="4" fill="#adc1af"/>
+    <path d="M385 229h74" stroke="#9bad9e" stroke-width="2" stroke-linecap="round"/>
+    <path d="M394 220h50" stroke="#9bad9e" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>
